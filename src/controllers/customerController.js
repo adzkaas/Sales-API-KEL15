@@ -3,7 +3,8 @@ import { CustomerModel } from "../models/customerModel.js";
 export const CustomerController = {
   async getAll(req, res) {
     try {
-      const customers = await CustomerModel.getAll();
+      const { name, page, limit } = req.query;
+      const customers = await CustomerModel.getAll(name, page, limit);
       res.json(customers);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -21,6 +22,20 @@ export const CustomerController = {
 
   async create(req, res) {
     try {
+      const { email, phone } = req.body;
+
+      if (!email || !email.includes("@")) {
+        return res.status(400).json({ 
+          error: "Email harus mengandung karakter '@' yang valid." 
+        });
+      }
+
+      if (!phone || phone.length < 10) {
+        return res.status(400).json({ 
+          error: "Nomor telepon (phone) harus diisi minimal 10 karakter." 
+        });
+      }
+
       const customer = await CustomerModel.create(req.body);
       res.status(201).json(customer);
     } catch (err) {
@@ -30,6 +45,20 @@ export const CustomerController = {
 
   async update(req, res) {
     try {
+      const { email, phone } = req.body;
+
+      if (email && !email.includes("@")) {
+        return res.status(400).json({ 
+          error: "Email harus mengandung karakter '@' yang valid." 
+        });
+      }
+
+      if (phone && phone.length < 10) {
+        return res.status(400).json({ 
+          error: "Nomor telepon (phone) harus diisi minimal 10 karakter." 
+        });
+      }
+
       const customer = await CustomerModel.update(req.params.id, req.body);
       res.json(customer);
     } catch (err) {
